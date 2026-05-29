@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Broken Tools</title>
+    <style>
+      :root {
+        --bg: #0b0e14;
+        --panel: #171c25;
+        --border: #2d3747;
+        --text: #edf2fa;
+        --muted: #9ba8bc;
+        --danger: #ff7c7c;
+        --accent: #3b82f6;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, "Segoe UI", Roboto, sans-serif;
+        overflow: hidden;
+      }
+      .layout {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100%;
+      }
+      .header {
+        padding: 14px 16px 0;
+      }
+      .header h1 { margin: 0 0 10px; font-size: 1.4rem; }
+      .add-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+      }
+      .field { display: flex; flex-direction: column; gap: 4px; }
+      .field label { font-size: 0.85rem; color: var(--muted); }
+      .field.name { flex: 2 1 220px; }
+      .field.note { flex: 3 1 280px; }
+      input[type="text"] {
+        background: #0f141d;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1.1rem;
+        padding: 12px 12px;
+        width: 100%;
+      }
+      button {
+        border: 0;
+        border-radius: 10px;
+        color: var(--text);
+        background: #243049;
+        font-size: 1.05rem;
+        padding: 13px 20px;
+        cursor: pointer;
+      }
+      button.primary { background: var(--accent); color: #fff; }
+      button.fix { background: #1f6f3f; color: #fff; }
+      .status { font-size: 0.9rem; color: var(--muted); margin: 8px 2px 0; min-height: 1.1em; }
+
+      .content {
+        overflow: auto;
+        padding: 12px 16px 320px;
+        /* JS owns drag-to-scroll; stop the browser claiming the touch gesture. */
+        touch-action: none;
+      }
+      .empty { color: var(--muted); padding: 24px 4px; font-size: 1.1rem; }
+      .tool {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--danger);
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+      }
+      .tool .info { flex: 1; min-width: 0; }
+      .tool .name { font-size: 1.2rem; font-weight: 600; }
+      .tool .note { color: var(--muted); margin-top: 3px; word-break: break-word; }
+      .tool .meta { color: #6b7688; font-size: 0.8rem; margin-top: 4px; }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <div class="header">
+        <h1>Broken Tools</h1>
+        <div class="add-row">
+          <div class="field name">
+            <label for="toolName">Tool</label>
+            <input id="toolName" type="text" placeholder="e.g. Drill press" />
+          </div>
+          <div class="field note">
+            <label for="toolNote">What's wrong? (optional)</label>
+            <input id="toolNote" type="text" placeholder="e.g. Chuck is stuck" />
+          </div>
+          <button id="addBtn" type="button" class="primary">Add broken tool</button>
+        </div>
+        <div id="status" class="status"></div>
+      </div>
+
+      <div class="content">
+        <div id="toolList"></div>
+      </div>
+    </div>
+
+    <script src="broken-tools.js"></script>
+  </body>
+</html>

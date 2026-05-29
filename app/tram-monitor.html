@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MVV Departures</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0c0f14;
+      }
+
+      .mvv-departure-monitor {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="mvv-departure-monitor"
+      monitor-configuration="eyJsYW5ndWFnZSI6eyJkZXBhcnR1cmUiOiJBYmZhaHJ0IiwidHJhaW5TdG9wcyI6IkhhbHRlc3RlbGxlbiIsImRpcmVjdGlvbiI6IlJpY2h0dW5nIiwiZm9vdGVyTm90ZSI6IqkgQ29weXJpZ2h0IiwiZm9vdGVyVGV4dCI6IldlaXRlcmUgRmFocnBsYW5hdXNr/G5mdGUgdW50ZXIgd3d3Lm12di1hdXNrdW5mdC5kZSBvZGVyIG1pdCBkZXIgTVZWLUFwcCIsImhlYWRlclRleHQiOiJBYmZhaHJ0ZW4gZvxyIGhldXRlLCAiLCJsYW5ndWFnZSI6ImRlIiwibGluZSI6IkxpbmllIiwibGl2ZSI6IkxpdmUiLCJzdG9wIjoiSGFsdGVzdGVsbGUiLCJ0cmFjayI6IkdsZWlzIn0sImlzRnVsbHNjcmVlbiI6ZmFsc2UsInN0YXRpb25zIjpbeyJzdGF0aW9uIjp7InVzYWdlIjoic2YiLCJ0eXBlIjoiYW55IiwibmFtZSI6Ik38bmNoZW4sIExlb25yb2RwbGF0eiIsInN0YXRlbGVzcyI6IjkxMDAwMDExIiwiYW55VHlwZSI6InN0b3AiLCJzb3J0IjoiMiIsInF1YWxpdHkiOiI0MjEiLCJiZXN0IjoiMSIsIm9iamVjdCI6Ikxlb25yb2RwbGF0eiIsIm1haW5Mb2MiOiJN/G5jaGVuIiwibW9kZXMiOiI0LDUiLCJyZWYiOnsiaWQiOiI5MTAwMDAxMSIsImdpZCI6ImRlOjA5MTYyOjExIiwib21jIjoiOTE2MjAwMCIsInBsYWNlSUQiOiIxIiwicGxhY2UiOiJN/G5jaGVuIiwiY29vcmRzIjoiMTI4NTQ1MC4wMDAwMCw1ODY2NTc0LjAwMDAwIn0sImlkIjoiZGU6MDkxNjI6MTEifSwibGluZXMiOlt7Im51bWJlciI6IjEyIiwic3ltYm9sIjoiMDIwMTIuc3ZnIiwiZGlyZWN0aW9uIjoiUm9tYW5wbGF0eiIsInN0YXRlbGVzcyI6InN3bTowMjAxMjpHOkg6MDE2IiwibmFtZSI6IlRyYW0ifSx7Im51bWJlciI6IjIwIiwic3ltYm9sIjoiMDIwMjAuc3ZnIiwiZGlyZWN0aW9uIjoiS2FybHNwbGF0eiAoU3RhY2h1cykiLCJzdGF0ZWxlc3MiOiJzd206MDIwMjA6RzpIOjAxNiIsIm5hbWUiOiJUcmFtIn0seyJudW1iZXIiOiIyMCIsInN5bWJvbCI6IjAyMDIwLnN2ZyIsImRpcmVjdGlvbiI6Ik1vb3NhY2giLCJzdGF0ZWxlc3MiOiJzd206MDIwMjA6RzpSOjAxNiIsIm5hbWUiOiJUcmFtIn0seyJudW1iZXIiOiIyMSIsInN5bWJvbCI6IjAyMDIxLnN2ZyIsImRpcmVjdGlvbiI6IlN0Li1WZWl0LVN0cmHfZSIsInN0YXRlbGVzcyI6InN3bTowMjAyMTpHOkg6MDE2IiwibmFtZSI6IlRyYW0ifSx7Im51bWJlciI6IjIxIiwic3ltYm9sIjoiMDIwMjEuc3ZnIiwiZGlyZWN0aW9uIjoiV2VzdGZyaWVkaG9mIiwic3RhdGVsZXNzIjoic3dtOjAyMDIxOkc6UjowMTYiLCJuYW1lIjoiVHJhbSJ9LHsibnVtYmVyIjoiTjIwIiwic3ltYm9sIjoiMzI5MjAuc3ZnIiwiZGlyZWN0aW9uIjoiS2FybHNwbGF0eiAoU3RhY2h1cykiLCJzdGF0ZWxlc3MiOiJzd206MzI5MjA6RzpIOjAxNiIsIm5hbWUiOiJOYWNodFRyYW0ifSx7Im51bWJlciI6Ik4yMCIsInN5bWJvbCI6IjMyOTIwLnN2ZyIsImRpcmVjdGlvbiI6Ik1vb3NhY2giLCJzdGF0ZWxlc3MiOiJzd206MzI5MjA6RzpSOjAxNiIsIm5hbWUiOiJOYWNodFRyYW0ifSx7Im51bWJlciI6IjUzIiwic3ltYm9sIjoiMDMwNTMuc3ZnIiwiZGlyZWN0aW9uIjoiQWlkZW5iYWNoc3RyYd9lIiwic3RhdGVsZXNzIjoic3dtOjAzMDUzOkc6SDowMTYiLCJuYW1lIjoiTWV0cm9CdXMifSx7Im51bWJlciI6Ik40MyIsInN5bWJvbCI6IjMzTjQzLnN2ZyIsImRpcmVjdGlvbiI6Ik9zdGJhaG5ob2YiLCJzdGF0ZWxlc3MiOiJzd206MzNONDM6RzpIOjAxNiIsIm5hbWUiOiJOYWNodEJ1cyJ9LHsibnVtYmVyIjoiNTMiLCJzeW1ib2wiOiIwMzA1My5zdmciLCJkaXJlY3Rpb24iOiJN/G5jaG5lciBGcmVpaGVpdCIsInN0YXRlbGVzcyI6InN3bTowMzA1MzpHOlI6MDE2IiwibmFtZSI6Ik1ldHJvQnVzIn0seyJudW1iZXIiOiJONDQiLCJzeW1ib2wiOiIzM040NC5zdmciLCJkaXJlY3Rpb24iOiJPc3RiYWhuaG9mIiwic3RhdGVsZXNzIjoic3dtOjMzTjQ0Okc6SDowMTYiLCJuYW1lIjoiTmFjaHRCdXMifV0sImxlYWRUaW1lTWludXRlcyI6NX1dLCJsaW5lcyI6W10sIm1heFJlc3VsdHMiOjIwLCJmZXRjaEludGVydmFsSW5NaW51dGVzIjozLCJzaG93Tm90aWZpY2F0aW9uIjp0cnVlfQ=="
+    ></div>
+    <script
+      type="text/javascript"
+      src="https://www.mvv-muenchen.de/fileadmin/mediapool/mvv-monitor/mvv-monitor.min.js"
+    ></script>
+  </body>
+</html>

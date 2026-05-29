@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership Form</title>
+    <style>
+      :root {
+        --bg: #0c0f14;
+        --panel: #171c25;
+        --border: #2d3747;
+        --text: #edf2fa;
+        --muted: #9ba8bc;
+        --accent: #66e0ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, "Segoe UI", Roboto, sans-serif;
+        overflow: hidden;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-rows: 1fr;
+        height: 100%;
+      }
+
+      .content {
+        overflow: auto;
+        padding: 14px;
+        /* room to scroll the lower fields above the on-screen keyboard overlay */
+        padding-bottom: 320px;
+        /* JS owns drag-to-scroll (setupDragScroll); stop the browser from
+           claiming the touch gesture, which would cancel the drag. */
+        touch-action: none;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      .title {
+        margin: 0 0 10px;
+        font-size: 1.15rem;
+      }
+
+      .grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .grid.two {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      label {
+        font-size: 0.9rem;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="tel"] {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid #3a4558;
+        background: #111720;
+        color: var(--text);
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-size: 1rem;
+      }
+
+      .row {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .radio,
+      .check {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        min-height: 40px;
+        color: var(--text);
+      }
+
+      .sign-wrap {
+        margin-top: 8px;
+      }
+
+      .sign-pad {
+        width: 100%;
+        height: 110px;
+        border: 1px solid #3a4558;
+        border-radius: 10px;
+        background: #fff;
+        touch-action: none;
+      }
+
+      .actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      button {
+        min-height: 46px;
+        border: 1px solid #3c4b61;
+        border-radius: 11px;
+        background: #202938;
+        color: var(--text);
+        padding: 0 16px;
+        font-size: 1rem;
+      }
+
+      button.primary {
+        border-color: var(--accent);
+        background: #23414e;
+      }
+
+      .status {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .reset-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        background: rgba(0, 0, 0, 0.75);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2147483647;
+      }
+      .reset-overlay[hidden] { display: none; }
+      .reset-card {
+        background: var(--panel);
+        border-radius: 14px;
+        padding: 32px 44px;
+        text-align: center;
+        min-width: 360px;
+        max-width: 90vw;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      }
+      .reset-card h2 { margin: 0 0 12px; font-size: 2rem; }
+      .reset-card p { margin: 0 0 20px; font-size: 1.2rem; }
+      .reset-card button { font-size: 1.1rem; padding: 14px 28px; }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <div class="content">
+        <div class="panel">
+          <h1 class="title">Membership Form</h1>
+          <div class="grid two">
+            <div><label>First name</label><input id="firstName" type="text" /></div>
+            <div><label>Last name</label><input id="lastName" type="text" /></div>
+            <div><label>Street & No.</label><input id="street" type="text" /></div>
+            <div><label>Postal code</label><input id="postalCode" type="text" /></div>
+            <div><label>City</label><input id="city" type="text" /></div>
+            <div><label>Date of birth</label><input id="dob" type="text" placeholder="DD.MM.YYYY" /></div>
+            <div><label>Mobile number</label><input id="mobile" type="tel" /></div>
+            <div><label>Email</label><input id="email" type="email" /></div>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <span>Preferred language:</span>
+            <label class="radio"><input type="radio" name="language" value="en" checked /> English</label>
+            <label class="radio"><input type="radio" name="language" value="de" /> Deutsch</label>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <span>Monthly fee:</span>
+            <label class="radio"><input type="radio" name="fee" value="20" checked /> 20 €</label>
+            <label class="radio"><input type="radio" name="fee" value="10" /> 10 €</label>
+            <label class="radio"><input type="radio" name="fee" value="custom" /> Custom</label>
+            <input id="customAmount" type="text" placeholder="Custom amount" style="max-width: 180px" />
+            <input id="feeReason" type="text" placeholder="Reason (optional)" style="max-width: 260px" />
+          </div>
+
+          <div style="margin-top: 10px">
+            <label>How did you hear about us?</label>
+            <input id="heardAbout" type="text" />
+          </div>
+
+          <div class="grid two" style="margin-top: 12px">
+            <div><label>Place, date</label><input id="placeDate" type="text" placeholder="Munich, DD.MM.YYYY" /></div>
+            <div></div>
+          </div>
+
+          <div class="sign-wrap">
+            <label>Signature (finger)</label>
+            <canvas id="signatureMain" class="sign-pad" width="1000" height="260"></canvas>
+            <div class="actions"><button type="button" data-clear-sign="signatureMain">Clear signature</button></div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top: 12px">
+          <h2 class="title">SEPA Direct Debit Mandate / SEPA-Lastschriftmandat</h2>
+
+          <div class="sepa-mandate" style="font-size: 14px; line-height: 1.45; background: rgba(255,255,255,0.04); padding: 12px 14px; border-radius: 8px; margin-bottom: 12px;">
+            <p style="margin: 0 0 6px"><strong>Zahlungsempfänger / Creditor:</strong> Munich Maker Lab e.V., Dachauer Str. 112h, 80636 München</p>
+            <p style="margin: 0 0 10px"><strong>Gläubiger-ID / Creditor identifier:</strong> DE68MGB0000143347</p>
+
+            <p style="margin: 0 0 8px"><strong>Mandat für Einzug von SEPA-Basis-Lastschrift:</strong><br />
+              Ich/Wir ermächtige/n den Munich Maker Lab e.V. Zahlungen vom o. g. Konto mittels Lastschrift einzuziehen.
+              Zugleich weise/n ich/wir mein/unser Kreditinstitut an, die vom Munich Maker Lab e.V. auf mein/unser Konto
+              gezogenen Lastschriften einzulösen.</p>
+
+            <p style="margin: 0 0 10px"><strong>Mandate for the SEPA Core Direct Debit Scheme:</strong><br />
+              By signing this mandate form, you authorise the Creditor, Munich Maker Lab e.V., to send instructions
+              to your bank to debit your account and your bank to debit your account in accordance with the
+              instructions from the Creditor.</p>
+
+            <p style="margin: 0 0 8px"><em>Hinweis:</em> Ich kann/wir können innerhalb von acht Wochen, beginnend mit dem
+              Belastungsdatum, die Erstattung des belasteten Betrages verlangen. Es gelten dabei die mit meinem/unserem
+              Kreditinstitut vereinbarten Bedingungen.</p>
+
+            <p style="margin: 0 0 10px"><em>Notice:</em> As part of your rights, you are entitled to a refund from your bank under the
+              terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the
+              date on which your account was debited. Your rights are explained in a statement that you can obtain from your bank.</p>
+
+            <p style="margin: 0;"><strong>[X] Mandat gilt für wiederkehrende Zahlung / Mandate for recurrent payments</strong></p>
+
+            <label class="check" style="margin-top: 10px; display: block;">
+              <input id="sepaConsent" type="checkbox" />
+              Ich habe das SEPA-Lastschriftmandat gelesen und stimme zu. /
+              I have read and agree to the SEPA Direct Debit Mandate.
+            </label>
+          </div>
+
+          <label class="check"><input id="sameAsAbove" type="checkbox" /> Name and address like above</label>
+          <div class="grid two" style="margin-top: 8px">
+            <div><label>First name (SEPA)</label><input id="sepaFirstName" type="text" /></div>
+            <div><label>Last name (SEPA)</label><input id="sepaLastName" type="text" /></div>
+            <div><label>Postal code & city (SEPA)</label><input id="sepaPostalCity" type="text" /></div>
+            <div><label>Street & No. (SEPA)</label><input id="sepaStreet" type="text" /></div>
+            <div><label>IBAN</label><input id="iban" type="text" /></div>
+            <div><label>Swift BIC</label><input id="bic" type="text" /></div>
+            <div><label>Name of bank</label><input id="bankName" type="text" /></div>
+            <div><label>Place, date (SEPA)</label><input id="sepaPlaceDate" type="text" /></div>
+          </div>
+
+          <div class="sign-wrap">
+            <label>Signature account holder (finger)</label>
+            <canvas id="signatureSepa" class="sign-pad" width="1000" height="260"></canvas>
+            <div class="actions"><button type="button" data-clear-sign="signatureSepa">Clear signature</button></div>
+          </div>
+
+          <div class="actions">
+            <button id="savePdfBtn" type="button" class="primary">Save completed PDF to SMB</button>
+            <span id="status" class="status">Ready.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="resetOverlay" class="reset-overlay" hidden>
+      <div class="reset-card">
+        <h2>Saved!</h2>
+        <p>The form will be cleared for the next person in <span id="resetCountdown">5</span>s.</p>
+        <button id="abortResetBtn" type="button" class="primary">Keep form / Cancel</button>
+      </div>
+    </div>
+
+    <div id="idleOverlay" class="reset-overlay" hidden>
+      <div class="reset-card">
+        <h2>Are you still here?</h2>
+        <p>The form will be cleared in <span id="idleCountdown">10</span>s.</p>
+        <button id="idleStayBtn" type="button" class="primary">I'm still here</button>
+      </div>
+    </div>
+
+    <script src="membership.config.js"></script>
+    <script src="vendor/pdf-lib.min.js"></script>
+    <script src="membership-form.js"></script>
+  </body>
+</html>

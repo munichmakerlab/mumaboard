@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=MumaBoard
+Comment=Touch-first monitor wall dashboard
+# EDIT this path if you cloned the project somewhere other than this default:
+Exec=/home/makerman/mumaboard/scripts/start-kiosk.sh
+X-GNOME-Autostart-enabled=true
+Terminal=false

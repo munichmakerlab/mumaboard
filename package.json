@@ -1,0 +1,17 @@
+{
+  "name": "mumaboard",
+  "version": "1.0.0",
+  "description": "Touch-first monitor wall dashboard (Electron)",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "electron .",
+    "kiosk": "scripts/start-kiosk.sh",
+    "clean": "rm -rf dist .cache/nwjs"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}
