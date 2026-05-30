@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Events Calendar</title>
+    <!-- Standard bundle exposes a global `FullCalendar` and injects its own CSS. -->
+    <script src="vendor/fullcalendar.global.min.js"></script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: #0c0f14;
+        color: #eef2f7;
+        font-family: Inter, "Segoe UI", Roboto, sans-serif;
+        overflow: hidden;
+      }
+
+      #calendar {
+        position: absolute;
+        inset: 12px;
+        /* Dark theme for FullCalendar (mirrors the website calendar). */
+        --fc-page-bg-color: #0c0f14;
+        --fc-neutral-bg-color: #1b1f27;
+        --fc-border-color: #293040;
+        --fc-list-event-hover-bg-color: #1b1f27;
+        --fc-today-bg-color: rgba(102, 224, 255, 0.08);
+        --fc-button-bg-color: #1b1f27;
+        --fc-button-border-color: #293040;
+        --fc-button-hover-bg-color: #2d3645;
+        --fc-button-hover-border-color: #3a4659;
+        --fc-button-active-bg-color: #2d3645;
+        --fc-button-active-border-color: #66e0ff;
+      }
+
+      .fc .fc-toolbar-title {
+        color: #eef2f7;
+      }
+      .fc a {
+        color: inherit;
+      }
+      /* Bigger touch targets for the kiosk. */
+      .fc .fc-button {
+        font-size: 1rem;
+        padding: 8px 14px;
+      }
+
+      #status {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        color: #96a3b8;
+        font-size: 1.1rem;
+        text-align: center;
+      }
+      #status.hidden {
+        display: none;
+      }
+
+      /* Event detail popover shown on click/tap. */
+      #popover {
+        position: fixed;
+        z-index: 1000;
+        max-width: 320px;
+        background: #1b1f27;
+        color: #eef2f7;
+        border: 1px solid #293040;
+        border-radius: 8px;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+        padding: 14px 16px;
+        font-size: 0.95rem;
+      }
+      #popover.hidden {
+        display: none;
+      }
+      #popover .pop-title {
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      #popover .pop-time {
+        color: #96a3b8;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+      }
+      #popover .pop-body {
+        white-space: pre-wrap;
+        border-top: 1px solid #293040;
+        padding-top: 8px;
+        word-break: break-word;
+      }
+      #popover .pop-body a {
+        color: #66e0ff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status">Loading events…</div>
+    <div id="calendar"></div>
+    <div id="popover" class="hidden"></div>
+
+    <script>
+      // Electron exposes Node `require` in the renderer (nodeIntegration). The vendored
+      // ICAL.js UMD build assigns to module.exports under Node, so require it directly
+      // rather than relying on a window global. FullCalendar's bundle, by contrast, sets
+      // the `FullCalendar` global via its <script> tag above.
+      const path = require("path");
+      const https = require("https");
+      // app/ directory, provided by preload.js (window.nw.App.startPath).
+      const APP_DIR = (window.nw && window.nw.App && window.nw.App.startPath) || __dirname;
+      const ICAL = require(path.join(APP_DIR, "vendor", "ical.umd.min.js"));
+
+      // Two ICS feeds, matching the website's /api/get-calendar proxy sources.
+      const FEEDS = [
+        {
+          // Workshops (registration required) — blue.
+          url: "https://tickets.munichmakerlab.de/mumalab/events/ical/?locale=en",
+          color: "#3788d8",
+        },
+        {
+          // Open events / meetups — orange.
+          url: "https://calendar.google.com/calendar/ical/lbd0aa2rlahecp7juvp35hd0k0%40group.calendar.google.com/public/basic.ics",
+          color: "#f89538",
+        },
+      ];
+
+      const REFRESH_MS = 10 * 60 * 1000; // Re-pull feeds every 10 minutes.
+      const MAX_OCCURRENCES = 1000; // Safety cap when expanding a recurring rule.
+
+      // Parsed feeds: [{ events: ICAL.Event[], color }]. Populated by loadFeeds().
+      let parsed = [];
+
+      // Fetch a URL as text via Node https, following redirects (Google ICS 302s).
+      function fetchText(url, redirects = 0) {
+        return new Promise((resolve, reject) => {
+          if (redirects > 5) return reject(new Error("Too many redirects"));
+          https
+            .get(url, (res) => {
+              if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                res.resume();
+                const next = new URL(res.headers.location, url).toString();
+                return resolve(fetchText(next, redirects + 1));
+              }
+              if (res.statusCode !== 200) {
+                res.resume();
+                return reject(new Error("HTTP " + res.statusCode + " for " + url));
+              }
+              let data = "";
+              res.setEncoding("utf8");
+              res.on("data", (chunk) => (data += chunk));
+              res.on("end", () => resolve(data));
+            })
+            .on("error", reject);
+        });
+      }
+
+      // Parse one ICS string into an array of ICAL.Event objects.
+      function parseICS(text) {
+        const comp = new ICAL.Component(ICAL.parse(text));
+        return comp.getAllSubcomponents("vevent").map((ve) => new ICAL.Event(ve));
+      }
+
+      async function loadFeeds() {
+        const results = await Promise.all(
+          FEEDS.map(async (feed) => {
+            try {
+              const text = await fetchText(feed.url);
+              return { events: parseICS(text), color: feed.color };
+            } catch (e) {
+              console.error("Calendar feed failed:", feed.url, e);
+              return { events: [], color: feed.color, error: e };
+            }
+          }),
+        );
+        parsed = results;
+        const failed = results.filter((r) => r.error).length;
+        if (failed === results.length) {
+          showStatus("Could not load events. Check network access.");
+        } else {
+          hideStatus();
+        }
+      }
+
+      // Expand one event into FullCalendar event objects within [rangeStart, rangeEnd).
+      function expand(ev, color, rangeStart, rangeEnd, out) {
+        const base = {
+          title: ev.summary || "(untitled)",
+          color,
+          extendedProps: { description: ev.description || "" },
+        };
+        if (ev.isRecurring()) {
+          const it = ev.iterator();
+          let next;
+          let count = 0;
+          while ((next = it.next()) && count++ < MAX_OCCURRENCES) {
+            const startJs = next.toJSDate();
+            if (startJs >= rangeEnd) break;
+            const det = ev.getOccurrenceDetails(next);
+            const endJs = det.endDate.toJSDate();
+            if (endJs <= rangeStart) continue;
+            out.push({ ...base, start: det.startDate.toJSDate(), end: endJs });
+          }
+        } else {
+          const startJs = ev.startDate.toJSDate();
+          const endJs = ev.endDate.toJSDate();
+          if (endJs <= rangeStart || startJs >= rangeEnd) return;
+          out.push({ ...base, start: startJs, end: endJs });
+        }
+      }
+
+      // FullCalendar event source: expand the parsed feeds for the requested window.
+      function eventSource(fetchInfo, success, failure) {
+        try {
+          const out = [];
+          for (const feed of parsed) {
+            for (const ev of feed.events) {
+              expand(ev, feed.color, fetchInfo.start, fetchInfo.end, out);
+            }
+          }
+          success(out);
+        } catch (e) {
+          failure(e);
+        }
+      }
+
+      const statusEl = document.getElementById("status");
+      const popoverEl = document.getElementById("popover");
+      function showStatus(msg) {
+        statusEl.textContent = msg;
+        statusEl.classList.remove("hidden");
+      }
+      function hideStatus() {
+        statusEl.classList.add("hidden");
+      }
+      function hidePopover() {
+        popoverEl.classList.add("hidden");
+      }
+
+      const timeFmt = { hour: "2-digit", minute: "2-digit", hour12: false };
+
+      function eventTimeLabel(event) {
+        if (!event.start) return "";
+        const start = event.start.toLocaleString([], {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          ...timeFmt,
+        });
+        if (!event.end) return start;
+        return start + " – " + event.end.toLocaleTimeString([], timeFmt);
+      }
+
+      // Strip HTML from descriptions and linkify bare URLs (same idea as the website).
+      function renderDescription(text) {
+        const plain = new DOMParser().parseFromString(text, "text/html").body.textContent || "";
+        const esc = plain.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+        return esc.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+          const clean = url.replace(/[.,!?;:]+$/, "");
+          return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>`;
+        });
+      }
+
+      function showPopover(info) {
+        const { event, jsEvent } = info;
+        jsEvent.preventDefault();
+        const desc = renderDescription(event.extendedProps.description || "");
+        popoverEl.innerHTML =
+          `<div class="pop-title"></div><div class="pop-time"></div>` +
+          (desc ? `<div class="pop-body">${desc}</div>` : "");
+        popoverEl.querySelector(".pop-title").textContent = event.title;
+        popoverEl.querySelector(".pop-time").textContent = eventTimeLabel(event);
+        popoverEl.classList.remove("hidden");
+        // Position near the tap, clamped to the viewport.
+        const rect = popoverEl.getBoundingClientRect();
+        const x = Math.min(jsEvent.clientX, window.innerWidth - rect.width - 8);
+        const y = Math.min(jsEvent.clientY, window.innerHeight - rect.height - 8);
+        popoverEl.style.left = Math.max(8, x) + "px";
+        popoverEl.style.top = Math.max(8, y) + "px";
+      }
+
+      // Close the popover when tapping elsewhere.
+      window.addEventListener("click", (e) => {
+        if (!popoverEl.contains(e.target)) hidePopover();
+      });
+
+      let calendar;
+      function initCalendar() {
+        const isSmall = window.innerWidth <= 600;
+        calendar = new FullCalendar.Calendar(document.getElementById("calendar"), {
+          initialView: isSmall ? "listMonth" : "dayGridMonth",
+          firstDay: 1,
+          height: "100%",
+          showNonCurrentDates: false,
+          fixedWeekCount: false,
+          locale: "en",
+          eventTimeFormat: timeFmt,
+          headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,listMonth",
+          },
+          events: eventSource,
+          eventClick: showPopover,
+        });
+        calendar.render();
+      }
+
+      (async function main() {
+        initCalendar();
+        await loadFeeds();
+        calendar.refetchEvents();
+        // Periodically refresh the feeds in the background.
+        setInterval(async () => {
+          await loadFeeds();
+          calendar.refetchEvents();
+        }, REFRESH_MS);
+      })();
+    </script>
+  </body>
+</html>

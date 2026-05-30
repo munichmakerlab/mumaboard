@@ -23,5 +23,11 @@ window.DASHBOARD_SCREENS = [
     label: "Broken Tools",
     url: "broken-tools.html",
     statusHint: "Report broken tools and mark them fixed. Saved to ~/.mumaboard/broken-tools.json."
+  },
+  {
+    id: "events",
+    label: "Events",
+    url: "events-calendar.html",
+    statusHint: "Workshops (blue) and open events (orange) from the lab calendars."
   }
 ];
