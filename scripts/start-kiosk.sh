@@ -7,18 +7,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_DIR"
 
-# Sleep the display after 5 minutes idle, wake on touch/input.
-# Wayland (labwc): swayidle watches the idle protocol and powers the output off
-# via wlopm; any seat input (touchscreen tap) powers it back on.
-DISPLAY_IDLE_SECS=300
-if command -v swayidle >/dev/null 2>&1 && command -v wlopm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
-  pkill -x swayidle 2>/dev/null || true
-  wlopm --on '*' || true   # ensure on at startup
-  swayidle -w \
-    timeout "$DISPLAY_IDLE_SECS" 'wlopm --off "*"' \
-    resume 'wlopm --on "*"' \
-    >/dev/null 2>&1 &
-fi
 # X11 fallback (not used on Pi OS labwc, but harmless): 5-minute DPMS sleep.
 if command -v xset >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
   xset s 300 300 || true
