@@ -4,13 +4,13 @@ window.DASHBOARD_SCREENS = [
     label: "MumaDisplay",
     url: "http://10.10.20.67:8123/dashboard-mumadisplay/0?disable_sidebar=1&kiosk=1",
     statusHint:
-      "If this page does not load, check network access and whether the target allows embedding."
+    "If this page does not load, check network access and whether the target allows embedding."
   },
   {
-    id: "membership-form",
-    label: "Membership Form",
-    url: "membership-form.html",
-    statusHint: "Fill, sign with finger, and save to the members SMB share."
+    id: "events",
+    label: "Events",
+    url: "events-calendar.html",
+    statusHint: "Workshops (blue) and open events (orange) from the lab calendars."
   },
   {
     id: "tram-departures",
@@ -19,15 +19,21 @@ window.DASHBOARD_SCREENS = [
     statusHint: "Live departures widget from MVV."
   },
   {
+    id: "wiki",
+    label: "Wiki",
+    url: "https://wiki.munichmakerlab.de",
+    statusHint: "If some info is missing or outdated, please feel free to contribute!"
+  },
+  {
+    id: "membership-form",
+    label: "Membership Form",
+    url: "membership-form.html",
+    statusHint: "Fill, sign with finger, and save to the members SMB share."
+  },
+  {
     id: "broken-tools",
     label: "Broken Tools",
     url: "broken-tools.html",
     statusHint: "Report broken tools and mark them fixed. Saved to ~/.mumaboard/broken-tools.json."
   },
-  {
-    id: "events",
-    label: "Events",
-    url: "events-calendar.html",
-    statusHint: "Workshops (blue) and open events (orange) from the lab calendars."
-  }
 ];
